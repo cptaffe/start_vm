@@ -62,10 +62,10 @@ start_vm() {
 sshfs_mount() {
 	if test "${#}" -eq 3; then
 		# if local path is empty (not mounted)
-		if test -b "$(ls -A ${3})"; then
-			sshfs "${1}":"${2}" "${3}"
-		else
+		if test -n "$(ls -A ${3})"; then
 			>&2 echo "'${1}:${2}' possibly already mounted at '${3}'."
+		else
+			sshfs "${1}":"${2}" "${3}"
 		fi
 	else
 		>&2 echo "incorrect invocation of routine 'sshfs_mount'."
