@@ -5,7 +5,7 @@
 set -o errexit
 set -o pipefail
 set -o nounset
-set -o xtrace
+# set -o xtrace
 
 # print usage statistics on bad invocation.
 usage() {
