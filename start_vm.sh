@@ -38,7 +38,7 @@ vm_exists() {
 			echo 0 # false
 		fi
 	else
-		echo "incorrect invocation of routine 'vm_exists'."
+		>&2 echo "incorrect invocation of routine 'vm_exists'."
 		exit 1
 	fi
 }
@@ -49,12 +49,26 @@ start_vm() {
 		if $(test $(vm_running "${1}") -eq 0) && $(test $(vm_exists "${1}") -eq 1); then
 			VBoxManage startvm "${1}" --type headless
 		elif test $(vm_running "${1}") -eq 1; then
-			echo "vm is already running"
+			>&2 echo "vm '${1}' is already running."
 		else
-			echo "vm does not exist"
+			>&2 echo "vm '${1}' does not exist."
 		fi
 	else
-		echo "incorrect invocation of routine 'start_vm'."
+		>&2 echo "incorrect invocation of routine 'start_vm'."
+		exit 1
+	fi
+}
+
+sshfs_mount() {
+	if test "${#}" -eq 3; then
+		# if local path is empty (not mounted)
+		if test -b "$(ls -A ${3})"; then
+			sshfs "${1}":"${2}" "${3}"
+		else
+			>&2 echo "'${1}:${2}' possibly already mounted at '${3}'."
+		fi
+	else
+		>&2 echo "incorrect invocation of routine 'sshfs_mount'."
 		exit 1
 	fi
 }
@@ -64,4 +78,6 @@ if $(test "${1}" == "-s") && $(test "${#}" -eq 2); then
 	start_vm "${2}"
 elif $(test "${1}" == "-l") && $(test "${#}" -eq 1); then
 	VBoxManage list vms
+elif $(test "${1}" == "-m") && $(test "${#}" -eq 4); then
+	sshfs_mount "${2}" "${3}" "${4}"
 fi
